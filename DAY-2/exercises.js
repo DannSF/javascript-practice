@@ -20,21 +20,14 @@ function getFirstChar(str) {
   return str[0];
 }
 
-// Tus soluciones aquí:
 // const multiplyArrow = ...
-const multiplyArrow = (a, b) => {
-  return a * b;
-};
+const multiplyArrow = (a, b) => a * b;
 
 // const isEvenArrow = ...
-const isEvenArrow = (num) => {
-  return num % 2 === 0;
-};
+const isEvenArrow = (num) => num % 2 === 0;
 
 // const getFirstCharArrow = ...
-const getFirstCharArrow = (str) => {
-  return str[0];
-};
+const getFirstCharArrow = (str) => str[0];
 
 // Ejercicio 2: Destructuring practice
 console.log('\n📝 Ejercicio 2: Destructuring');
@@ -50,11 +43,13 @@ const student = {
 
 // Extrae name, el primer grade, y email usando destructuring
 // console.log(...)
-const { name, grade, contact } = student;
+const { name, grades, contact } = student;
+const [firstGrade] = grades;
+const { email } = contact;
 console.log(`
     Name: ${name}
-    Grade: ${grade[0]}
-    Email: ${contact.email}
+    First grade: ${firstGrade}
+    Email: ${email}
     `);
 
 // Ejercicio 3: Spread operator
@@ -90,10 +85,8 @@ console.log('\n📝 Ejercicio 5: Default Parameters');
 // - duration (number) con default 5000
 // y retorne un objeto con estas propiedades
 
-function createMessage(message, type = 'info', duration = 5000) {
-  return {
-    message,
-    type,
-    duration,
-  };
-}
+const createMessage = (message, type = 'info', duration = 5000) => ({
+  message,
+  type,
+  duration,
+});
