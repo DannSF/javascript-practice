@@ -1,0 +1,100 @@
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DIA 5 - DOM y EVENTOS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>🎯 DIA 5 - Manipulacion del DOM</h1>
+        <p class="subtitle">
+          Practicando selectores, eventos y manipulación dinámica
+        </p>
+      </header>
+      <section class="section" id="color-section">
+        <h2>🎨 Cambiador de colores</h2>
+        <div class="button-group">
+          <button class="btn btn-primary" id="color-btn">
+            Cambiar Color de fondo
+          </button>
+          <button class="btn btn-secondary" id="reset-color">
+            Resetear Color
+          </button>
+        </div>
+        <div class="color-display" id="color-display">
+          Color actual: <span id="current-color">#ffffff</span>
+        </div>
+      </section>
+
+      <section class="section" id="text-section">
+        <h2>📝 Generador de texto dinamico</h2>
+        <div class="input-group">
+          <input
+            type="text"
+            id="text-input"
+            class="input"
+            placeholder="Escribe algo aqui..."
+          />
+          <button class="btn btn-success" id="add-text">Agregar Texto</button>
+        </div>
+        <div class="text-output" id="text-output"></div>
+      </section>
+
+      <section class="section" id="users-section">
+        <h2>👥 Lista de Usuarios (Dinamica)</h2>
+        <button class="btn btn-info" id="load-users">Cargar Usuarios</button>
+        <button class="btn btn-warning" id="clear-users">Limpiar Lista</button>
+        <div class="users-list" id="users-list"></div>
+      </section>
+
+      <section class="section" id="game-section">
+        <h2>🎮 Contador Interactivo</h2>
+        <div class="counter-container">
+          <button class="btn btn-danger" id="decrement">-</button>
+          <span class="counter" id="counter">0</span>
+          <button class="btn btn-success" id="increment">+</button>
+        </div>
+        <div class="counter-controls">
+          <button class="btn btn-warning" id="reset-counter">Reset</button>
+          <button class="btn btn-info" id="double">Doble</button>
+        </div>
+      </section>
+
+      <section class="section" id="form-section">
+        <h2>📊 Formulario de Contacto</h2>
+        <form id="contact-form" class="form">
+          <div class="form-group">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="message">Mensaje:</label>
+
+            <textarea
+              id="message"
+              class="textarea"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+        </form>
+        <div id="form-result" class="form-result"></div>
+      </section>
+
+      <section class="section" id="debug-section">
+        <h2>🔍 Consola de Debug</h2>
+        <div class="debug-console" id="debug-console"></div>
+        <button class="btn btn-secondary" id="clear-logs">Limpiar Logs</button>
+      </section>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
