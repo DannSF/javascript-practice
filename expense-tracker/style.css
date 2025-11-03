@@ -407,26 +407,26 @@ body {
   border-radius: 10px;
   color: white;
   font-weight: 600;
-  z-index: 10000;
+  z-index: 1000;
   transform: translateX(400px);
   transition: transform 0.3s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
 
-  .show {
-    transform: translateX(0);
-  }
+.toast.show {
+  transform: translateX(0);
+}
 
-  .success {
-    background: var(--success);
-  }
+.toast.success {
+  background: var(--success);
+}
 
-  .error {
-    background: var(--danger);
-  }
+.toast.error {
+  background: var(--danger);
+}
 
-  .warning {
-    background: var(--warning);
-  }
+.toast.warning {
+  background: var(--warning);
 }
 
 /* 🎬 ANIMATIONS */

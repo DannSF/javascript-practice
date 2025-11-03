@@ -1,7 +1,5 @@
 console.log('Expense Tracker initialized');
 
-const expense = {};
-
 class ExpenseTracker {
   constructor() {
     this.expenses = this.loadFromLocalStorage();
@@ -188,7 +186,7 @@ class ExpenseTracker {
 
   toggleSelectExpense(id) {
     if (this.selectedExpenses.has(id)) {
-      this.selectedExpenses.deleteExpense(id);
+      this.selectedExpenses.delete(id);
     } else {
       this.selectedExpenses.add(id);
     }
@@ -244,7 +242,7 @@ class ExpenseTracker {
     }
 
     if (
-      cconfirm(
+      confirm(
         'Are you sure you want to delete ALL expenses? This action cannot be undone.'
       )
     ) {
