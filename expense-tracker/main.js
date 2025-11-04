@@ -142,6 +142,8 @@ class ExpenseTracker {
       return;
     }
 
+    console.log(filteredExpenses);
+
     expensesList.innerHTML = filteredExpenses
       .map(
         (expense) =>
