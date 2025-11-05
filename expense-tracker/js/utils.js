@@ -26,4 +26,18 @@ export class Utils {
       average: this.formatCurrency(average),
     };
   }
+
+  getCategoryLabel(category) {
+    const labels = {
+      food: 'Food & Dining',
+      transport: 'Transportation',
+      shopping: 'Shopping',
+      entertainment: 'Entertainment',
+      bills: 'Bills & Utilities',
+      health: 'Health',
+      other: 'Other',
+    };
+
+    return labels[category] || category;
+  }
 }

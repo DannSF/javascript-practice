@@ -19,7 +19,7 @@ export class ExpensesService {
   }
 
   deleteExpenseById(id) {
-    this.expenses = this.expenses.filter(expense, () => expense.id !== id);
+    this.expenses = this.expenses.filter((expense) => expense.id !== id);
     this.setDataToLocalStorage();
   }
 

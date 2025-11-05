@@ -38,7 +38,7 @@ export class ExpensesController {
     }
 
     const expense = {
-      id: new Date(),
+      id: Date.now(),
       name,
       amount,
       category,
@@ -64,55 +64,48 @@ export class ExpensesController {
 
     if (filteredExpenses.length === 0) {
       expensesList.innerHTML = `
-        <div class="empty-state">
-        <p> No expenses found. ${
+      <div class="empty-state">
+        <p>No expenses found. ${
           searchTerm || category !== 'all'
             ? 'Try changing your filters.'
             : 'Add your first expense above!'
         }</p>
-        </div>
-        `;
+      </div>`;
       return;
     }
 
     expensesList.innerHTML = filteredExpenses
       .map(
-        (expense) =>
-          ` <div class="expense-item ${
-            this.selectedExpenses.has(expense.id) ? 'selected' : ''
-          }">
-                <input 
-                    type="checkbox" 
-                    class="select-checkbox"
-                    ${this.selectedExpenses.has(expense.id) ? 'checked' : ''}
-                    onchange="expenseTracker.toggleSelectExpense(${expense.id})"
-                >
-                <div class="expense-info">
-                    <div class="expense-name">${this.utils.escapeHtml(
-                      expense.name
-                    )}</div>
-                    <div class="expense-meta">
-                        <span class="expense-category category-${
-                          expense.category
-                        }">
-                            ${expense.category}
-                        </span>
-                        <span>📅 ${new Date(
-                          expense.date
-                        ).toLocaleDateString()}</span>
-                    </div>
-                </div>
-                <div class="expense-amount">${this.utils.formatCurrency(
-                  expense.amount
-                )}</div>
-                <button class="delete-btn" onclick="expenseTracker.deleteExpense(${
-                  expense.id
-                })" title="Delete expense">
-                    🗑️
-                </button>
-            </div>`
+        (expense) => `
+        <div class="expense-item ${
+          this.selectedExpenses.has(expense.id) ? 'selected' : ''
+        }" 
+             data-id="${expense.id}">
+          <input 
+            type="checkbox" 
+            class="select-checkbox"
+            ${this.selectedExpenses.has(expense.id) ? 'checked' : ''}
+          >
+          <div class="expense-info">
+            <div class="expense-name">${this.utils.escapeHtml(
+              expense.name
+            )}</div>
+            <div class="expense-meta">
+              <span class="expense-category category-${expense.category}">
+                ${this.utils.getCategoryLabel(expense.category)}
+              </span>
+              <span>📅 ${new Date(expense.date).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <div class="expense-amount">${this.utils.formatCurrency(
+            expense.amount
+          )}</div>
+          <button class="delete-btn" title="Delete expense">🗑️</button>
+        </div>`
       )
       .join('');
+
+    this.attachExpenseEvents();
   }
 
   getFilteredExpenses(searchTerm = null, category = 'all') {
@@ -128,8 +121,38 @@ export class ExpensesController {
     });
   }
 
+  attachExpenseEvents() {
+    const expensesList = document.getElementById('expenses-list');
+
+    expensesList.querySelectorAll('.delete-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.closest('.expense-item').dataset.id;
+        this.deleteExpense(id);
+      });
+    });
+
+    expensesList.querySelectorAll('.select-checkbox').forEach((checkbox) => {
+      checkbox.addEventListener('change', (e) => {
+        const id = e.target.closest('.expense-item').dataset.id;
+        console.log(id);
+      });
+    });
+  }
+
   deleteExpense(id) {
-    console.log(id);
+    this.selectedExpenses.delete(id);
+    this.expensesService.deleteExpenseById(id);
+    this.renderExpenses();
+    this.renderDashboard();
+    this.showToast('Expense deleted succesfully', 'warning');
+  }
+
+  toggleSelectExpense(id) {
+    if (this.selectedExpenses.has(id)) {
+      this.selectedExpenses.delete(id);
+    } else {
+      this.selectedExpenses.add(id);
+    }
   }
 
   renderCategories() {
