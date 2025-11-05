@@ -28,7 +28,8 @@ export class ExpensesService {
   }
 
   clearAllExpenses() {
-    return (this.expenses = []);
+    this.expenses = [];
+    this.setDataToLocalStorage();
   }
 
   getAllCategories() {

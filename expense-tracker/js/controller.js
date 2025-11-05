@@ -15,12 +15,17 @@ export class ExpensesController {
     this.renderCategories();
     this.renderExpenses();
     this.renderDashboard();
+    this.showToast('Expense tracker loaded successfully', 'success');
   }
 
   bindEvents() {
     document.getElementById('expense-form').addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleAddExpense();
+    });
+
+    document.getElementById('clear-all').addEventListener('click', (e) => {
+      this.clearAllExpenses();
     });
   }
 
@@ -38,7 +43,7 @@ export class ExpensesController {
     }
 
     const expense = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name,
       amount,
       category,
@@ -134,7 +139,7 @@ export class ExpensesController {
     expensesList.querySelectorAll('.select-checkbox').forEach((checkbox) => {
       checkbox.addEventListener('change', (e) => {
         const id = e.target.closest('.expense-item').dataset.id;
-        console.log(id);
+        this.toggleSelectExpense(id);
       });
     });
   }
@@ -142,6 +147,7 @@ export class ExpensesController {
   deleteExpense(id) {
     this.selectedExpenses.delete(id);
     this.expensesService.deleteExpenseById(id);
+    this.expenses = this.expensesService.getAllExpenses();
     this.renderExpenses();
     this.renderDashboard();
     this.showToast('Expense deleted succesfully', 'warning');
@@ -182,6 +188,27 @@ export class ExpensesController {
     document.getElementById('total-amount').textContent = total;
     document.getElementById('expense-count').textContent = count;
     document.getElementById('average-amount').textContent = average;
+  }
+
+  clearAllExpenses() {
+    if (this.expenses.length === 0) {
+      this.showToast('No expenses to clear', 'warning');
+      return;
+    }
+
+    if (
+      confirm(
+        'Are you sure you want to delete ALL expenses? This action cannot be undone.'
+      )
+    ) {
+      this.selectedExpenses.clear();
+      this.expensesService.clearAllExpenses();
+      this.expenses = this.expensesService.getAllExpenses();
+
+      this.renderExpenses();
+      this.renderDashboard();
+      this.showToast('All expenses cleared', 'warning');
+    }
   }
 
   showToast(message, type = 'info') {
