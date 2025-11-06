@@ -27,6 +27,28 @@ export class ExpensesController {
     document.getElementById('clear-all').addEventListener('click', (e) => {
       this.clearAllExpenses();
     });
+
+    const searchExpense = document.getElementById('search-expenses');
+    searchExpense.addEventListener('input', (e) => {
+      this.handleSearchByName(e.target.value);
+      filterCategory.value = 'all';
+    });
+
+    const filterCategory = document.getElementById('filter-category');
+    filterCategory.addEventListener('change', (e) => {
+      this.handleSearchByCategory(e.target.value);
+      searchExpense.value = '';
+    });
+
+    document
+      .getElementById('delete-selected')
+      .addEventListener('click', (e) => {
+        this.handleDeleteSelected();
+      });
+
+    document.getElementById('export-data').addEventListener('click', (e) => {
+      this.handleExportData();
+    });
   }
 
   handleAddExpense() {
@@ -111,6 +133,7 @@ export class ExpensesController {
       .join('');
 
     this.attachExpenseEvents();
+    this.updateBulkActions();
   }
 
   getFilteredExpenses(searchTerm = null, category = 'all') {
@@ -140,6 +163,7 @@ export class ExpensesController {
       checkbox.addEventListener('change', (e) => {
         const id = e.target.closest('.expense-item').dataset.id;
         this.toggleSelectExpense(id);
+        this.updateBulkActions();
       });
     });
   }
@@ -152,6 +176,8 @@ export class ExpensesController {
     this.renderDashboard();
     this.showToast('Expense deleted succesfully', 'warning');
   }
+
+  deleteSelectedExpenses() {}
 
   toggleSelectExpense(id) {
     if (this.selectedExpenses.has(id)) {
@@ -207,8 +233,63 @@ export class ExpensesController {
 
       this.renderExpenses();
       this.renderDashboard();
+      this.updateBulkActions();
       this.showToast('All expenses cleared', 'warning');
     }
+  }
+
+  handleSearchByName(searchTerm) {
+    this.renderExpenses(searchTerm);
+  }
+
+  handleSearchByCategory(category) {
+    this.renderExpenses(null, category);
+  }
+
+  updateBulkActions() {
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+
+    if (this.selectedExpenses.size > 0) {
+      bulkActions.style.display = 'flex';
+      selectedCount.textContent = `${this.selectedExpenses.size} selected`;
+    } else {
+      bulkActions.style.display = 'none';
+    }
+  }
+
+  handleDeleteSelected() {
+    if (this.selectedExpenses.size === 0) {
+      this.showToast('No expenses selected', 'warning');
+    }
+
+    if (confirm(`Delete ${this.selectedExpenses.size} selected expenses`)) {
+      this.expenses = this.expenses.filter(
+        (expense) => !this.selectedExpenses.has(expense.id)
+      );
+      this.selectedExpenses.clear();
+      this.expensesService.setExpenses(this.expenses);
+
+      this.updateBulkActions();
+      this.renderExpenses();
+      this.renderDashboard();
+      this.showToast(
+        `Deleted ${this.selectedExpenses.size} expenses`,
+        'success'
+      );
+    }
+  }
+
+  handleExportData() {
+    const dataStr = JSON.stringify(this.expenses, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `expenses-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+
+    this.showToast('Expenses data exported successfully', 'success');
   }
 
   showToast(message, type = 'info') {

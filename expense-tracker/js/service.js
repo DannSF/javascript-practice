@@ -43,4 +43,9 @@ export class ExpensesService {
       { value: 'other', label: 'Other', icon: '📦' },
     ];
   }
+
+  setExpenses(expenses) {
+    this.expenses = expenses;
+    this.setDataToLocalStorage();
+  }
 }
