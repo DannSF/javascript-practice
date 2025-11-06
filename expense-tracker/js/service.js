@@ -1,3 +1,13 @@
+const DEFAULT_CATEGORIES = [
+  { value: 'food', label: 'Food & Dining', icon: '🍕' },
+  { value: 'transport', label: 'Transportation', icon: '🚗' },
+  { value: 'shopping', label: 'Shopping', icon: '🛍️' },
+  { value: 'entertainment', label: 'Entertainment', icon: '🎬' },
+  { value: 'bills', label: 'Bills & Utilities', icon: '📄' },
+  { value: 'health', label: 'Health', icon: '🏥' },
+  { value: 'other', label: 'Other', icon: '📦' },
+];
+
 export class ExpensesService {
   constructor(localStorageKey = 'expenseTracker') {
     this.localStorageKey = localStorageKey;
@@ -9,18 +19,18 @@ export class ExpensesService {
     return data ? JSON.parse(data) : [];
   }
 
-  setDataToLocalStorage() {
+  persist() {
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.expenses));
   }
 
   addExpense(expense) {
     this.expenses.unshift(expense);
-    this.setDataToLocalStorage();
+    this.persist();
   }
 
   deleteExpenseById(id) {
     this.expenses = this.expenses.filter((expense) => expense.id !== id);
-    this.setDataToLocalStorage();
+    this.persist();
   }
 
   getAllExpenses() {
@@ -29,23 +39,15 @@ export class ExpensesService {
 
   clearAllExpenses() {
     this.expenses = [];
-    this.setDataToLocalStorage();
+    this.persist();
   }
 
   getAllCategories() {
-    return [
-      { value: 'food', label: 'Food & Dining', icon: '🍕' },
-      { value: 'transport', label: 'Transportation', icon: '🚗' },
-      { value: 'shopping', label: 'Shopping', icon: '🛍️' },
-      { value: 'entertainment', label: 'Entertainment', icon: '🎬' },
-      { value: 'bills', label: 'Bills & Utilities', icon: '📄' },
-      { value: 'health', label: 'Health', icon: '🏥' },
-      { value: 'other', label: 'Other', icon: '📦' },
-    ];
+    return DEFAULT_CATEGORIES;
   }
 
   setExpenses(expenses) {
     this.expenses = expenses;
-    this.setDataToLocalStorage();
+    this.persist();
   }
 }

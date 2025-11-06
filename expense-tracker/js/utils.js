@@ -8,10 +8,14 @@ export class Utils {
       .replace(/'/g, '&#039;');
   }
 
-  formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
+  formatDate(dateStr, locale = 'en-US') {
+    return new Date(dateStr).toLocaleDateString(locale);
+  }
+
+  formatCurrency(amount, currency = 'USD', locale = 'en-US') {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'USD',
+      currency,
     }).format(amount);
   }
 
@@ -21,9 +25,11 @@ export class Utils {
     const average = expenses.length > 0 ? total / count : 0;
 
     return {
-      total: this.formatCurrency(total),
+      total,
       count,
-      average: this.formatCurrency(average),
+      average,
+      totalFormatted: this.formatCurrency(total),
+      averageFormatted: this.formatCurrency(average),
     };
   }
 

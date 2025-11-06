@@ -59,9 +59,8 @@ export class ExpensesController {
       document.getElementById('expense-date').value ||
       new Date().toISOString().split('T')[0];
 
-    if (!name || !amount || !category) {
-      this.showToast('Please fill all fields with valid data', 'error');
-      return;
+    if (!name || !Number.isFinite(amount) || amount <= 0 || !category) {
+      return this.showToast('Please fill all fields with valid data', 'error');
     }
 
     const expense = {
@@ -86,54 +85,57 @@ export class ExpensesController {
   }
 
   renderExpenses(searchTerm = null, category = 'all') {
-    const expensesList = document.getElementById('expenses-list');
-    const filteredExpenses = this.getFilteredExpenses(searchTerm, category);
-
-    if (filteredExpenses.length === 0) {
-      expensesList.innerHTML = `
-      <div class="empty-state">
-        <p>No expenses found. ${
-          searchTerm || category !== 'all'
-            ? 'Try changing your filters.'
-            : 'Add your first expense above!'
-        }</p>
-      </div>`;
-      return;
-    }
-
-    expensesList.innerHTML = filteredExpenses
-      .map(
-        (expense) => `
-        <div class="expense-item ${
-          this.selectedExpenses.has(expense.id) ? 'selected' : ''
-        }" 
-             data-id="${expense.id}">
-          <input 
-            type="checkbox" 
-            class="select-checkbox"
-            ${this.selectedExpenses.has(expense.id) ? 'checked' : ''}
-          >
-          <div class="expense-info">
-            <div class="expense-name">${this.utils.escapeHtml(
-              expense.name
-            )}</div>
-            <div class="expense-meta">
-              <span class="expense-category category-${expense.category}">
-                ${this.utils.getCategoryLabel(expense.category)}
-              </span>
-              <span>📅 ${new Date(expense.date).toLocaleDateString()}</span>
-            </div>
-          </div>
-          <div class="expense-amount">${this.utils.formatCurrency(
-            expense.amount
-          )}</div>
-          <button class="delete-btn" title="Delete expense">🗑️</button>
-        </div>`
-      )
-      .join('');
-
-    this.attachExpenseEvents();
+    const filtered = this.getFilteredExpenses(searchTerm, category);
+    this.renderExpenseList(filtered);
     this.updateBulkActions();
+  }
+
+  renderExpenseList(expenses) {
+    const expensesList = document.getElementById('expenses-list');
+    if (!expenses.length)
+      return (expensesList.innerHTML = this.emptyStateHtml());
+
+    expensesList.innerHTML = expenses
+      .map(this.expenseItemTemplate.bind(this))
+      .join('');
+    this.attachExpenseEvents();
+  }
+
+  emptyStateHtml(searchTerm = null, category = 'all') {
+    return `
+    <div class="empty-state">
+      <p>No expenses found. ${
+        searchTerm || category !== 'all'
+          ? 'Try changing your filters.'
+          : 'Add your first expense above!'
+      }</p>
+    </div>
+  `;
+  }
+
+  expenseItemTemplate(expense) {
+    return `
+    <div class="expense-item ${
+      this.selectedExpenses.has(expense.id) ? 'selected' : ''
+    }" data-id="${expense.id}">
+      <input type="checkbox" class="select-checkbox" ${
+        this.selectedExpenses.has(expense.id) ? 'checked' : ''
+      }>
+      <div class="expense-info">
+        <div class="expense-name">${this.utils.escapeHtml(expense.name)}</div>
+        <div class="expense-meta">
+          <span class="expense-category category-${
+            expense.category
+          }">${this.utils.getCategoryLabel(expense.category)}</span>
+           <span>📅 ${this.utils.formatDate(expense.date)}</span>
+        </div>
+      </div>
+      <div class="expense-amount">${this.utils.formatCurrency(
+        expense.amount
+      )}</div>
+      <button class="delete-btn" title="Delete expense">🗑️</button>
+    </div>
+  `;
   }
 
   getFilteredExpenses(searchTerm = null, category = 'all') {
@@ -152,19 +154,17 @@ export class ExpensesController {
   attachExpenseEvents() {
     const expensesList = document.getElementById('expenses-list');
 
-    expensesList.querySelectorAll('.delete-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const id = e.target.closest('.expense-item').dataset.id;
-        this.deleteExpense(id);
-      });
-    });
+    expensesList.addEventListener('click', (e) => {
+      const item = e.target.closest('.expense-item');
+      if (!item) return;
+      const id = item.dataset.id;
 
-    expensesList.querySelectorAll('.select-checkbox').forEach((checkbox) => {
-      checkbox.addEventListener('change', (e) => {
-        const id = e.target.closest('.expense-item').dataset.id;
+      if (e.target.classList.contains('delete-btn')) {
+        this.deleteExpense(id);
+      } else if (e.target.classList.contains('select-checkbox')) {
         this.toggleSelectExpense(id);
         this.updateBulkActions();
-      });
+      }
     });
   }
 
@@ -172,12 +172,11 @@ export class ExpensesController {
     this.selectedExpenses.delete(id);
     this.expensesService.deleteExpenseById(id);
     this.expenses = this.expensesService.getAllExpenses();
+
     this.renderExpenses();
     this.renderDashboard();
-    this.showToast('Expense deleted succesfully', 'warning');
+    this.showToast('Expense deleted successfully', 'warning');
   }
-
-  deleteSelectedExpenses() {}
 
   toggleSelectExpense(id) {
     if (this.selectedExpenses.has(id)) {
@@ -197,7 +196,7 @@ export class ExpensesController {
         (category) =>
           `<option value=${category.value}>${category.icon} ${category.label}</option>`
       )
-      .join();
+      .join('');
 
     categoriesFilter.innerHTML =
       `<option value="all">All Categories</option>` +
@@ -206,21 +205,21 @@ export class ExpensesController {
           (category) =>
             `<option value=${category.value}>${category.label}</option>`
         )
-        .join();
+        .join('');
   }
 
   renderDashboard() {
-    const { total, count, average } = this.utils.expensesCalc(this.expenses);
-    document.getElementById('total-amount').textContent = total;
+    const { totalFormatted, count, averageFormatted } = this.utils.expensesCalc(
+      this.expenses
+    );
+    document.getElementById('total-amount').textContent = totalFormatted;
     document.getElementById('expense-count').textContent = count;
-    document.getElementById('average-amount').textContent = average;
+    document.getElementById('average-amount').textContent = averageFormatted;
   }
 
   clearAllExpenses() {
-    if (this.expenses.length === 0) {
-      this.showToast('No expenses to clear', 'warning');
-      return;
-    }
+    if (!this.expenses.length)
+      return this.showToast('No expenses to clear', 'warning');
 
     if (
       confirm(
@@ -259,24 +258,23 @@ export class ExpensesController {
   }
 
   handleDeleteSelected() {
-    if (this.selectedExpenses.size === 0) {
-      this.showToast('No expenses selected', 'warning');
-    }
+    const count = this.selectedExpenses.size;
 
-    if (confirm(`Delete ${this.selectedExpenses.size} selected expenses`)) {
-      this.expenses = this.expenses.filter(
-        (expense) => !this.selectedExpenses.has(expense.id)
-      );
+    if (count === 0) return this.showToast('No expenses selected', 'warning');
+
+    if (confirm(`Delete ${count} selected expenses`)) {
+      this.newExpenses = this.expensesService
+        .getAllExpenses()
+        .filter((expense) => !this.selectedExpenses.has(expense.id));
+
+      this.expensesService.setExpenses(this.newExpenses);
+      this.expenses = this.expensesService.getAllExpenses();
       this.selectedExpenses.clear();
-      this.expensesService.setExpenses(this.expenses);
 
       this.updateBulkActions();
       this.renderExpenses();
       this.renderDashboard();
-      this.showToast(
-        `Deleted ${this.selectedExpenses.size} expenses`,
-        'success'
-      );
+      this.showToast(`Deleted ${count} expenses`, 'success');
     }
   }
 
