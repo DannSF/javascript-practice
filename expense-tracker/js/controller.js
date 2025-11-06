@@ -59,7 +59,7 @@ export class ExpensesController {
       document.getElementById('expense-date').value ||
       new Date().toISOString().split('T')[0];
 
-    if (!name || !Number.isFinite(amount) || amount <= 0 || !category) {
+    if (!name || isNaN(amount) || amount <= 0 || !category) {
       return this.showToast('Please fill all fields with valid data', 'error');
     }
 
@@ -154,17 +154,19 @@ export class ExpensesController {
   attachExpenseEvents() {
     const expensesList = document.getElementById('expenses-list');
 
-    expensesList.addEventListener('click', (e) => {
-      const item = e.target.closest('.expense-item');
-      if (!item) return;
-      const id = item.dataset.id;
-
-      if (e.target.classList.contains('delete-btn')) {
+    expensesList.querySelectorAll('.delete-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.closest('.expense-item').dataset.id;
         this.deleteExpense(id);
-      } else if (e.target.classList.contains('select-checkbox')) {
+      });
+    });
+
+    expensesList.querySelectorAll('.select-checkbox').forEach((checkbox) => {
+      checkbox.addEventListener('change', (e) => {
+        const id = e.target.closest('.expense-item').dataset.id;
         this.toggleSelectExpense(id);
         this.updateBulkActions();
-      }
+      });
     });
   }
 
